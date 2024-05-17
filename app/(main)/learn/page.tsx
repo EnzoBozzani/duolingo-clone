@@ -6,6 +6,7 @@ import { StickyWrapper } from '@/components/sticky-wrapper';
 import { UserProgress } from '@/components/user-progress';
 
 import { Header } from './header';
+import { Unit } from './unit';
 
 const LearnPage = async () => {
 	const userProgressPromise = getUserProgress();
@@ -29,14 +30,22 @@ const LearnPage = async () => {
 			</StickyWrapper>
 			<FeedWrapper>
 				<Header title={userProgress.activeCourse.title} />
-				{/* {units.map((unit) => (
+				{units.map((unit) => (
 					<div
 						key={unit.id}
 						className='mb-10'
 					>
-						{JSON.stringify(unit)}
+						<Unit
+							id={unit.id}
+							order={unit.order}
+							description={unit.description}
+							title={unit.title}
+							lessons={unit.lessons}
+							activeLesson={undefined}
+							activeLessonPorcentage={0}
+						/>
 					</div>
-				))} */}
+				))}
 			</FeedWrapper>
 		</div>
 	);
