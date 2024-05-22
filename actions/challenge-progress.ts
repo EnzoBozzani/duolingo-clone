@@ -62,4 +62,23 @@ export const upsertChallengeProgress = async (challengeId: number) => {
 		revalidatePath(`/lesson/${lessonId}`);
 		return;
 	}
+
+	await db.insert(challengeProgress).values({
+		challengeId,
+		userId,
+		completed: true,
+	});
+
+	await db
+		.update(userProgress)
+		.set({
+			points: currentUserProgress.points + 10,
+		})
+		.where(eq(userProgress.userId, userId));
+
+	revalidatePath('/learn');
+	revalidatePath('/lesson');
+	revalidatePath('/quests');
+	revalidatePath('/leaderboard');
+	revalidatePath(`/lesson/${lessonId}`);
 };

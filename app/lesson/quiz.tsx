@@ -1,13 +1,16 @@
 'use client';
 
-import { use, useState } from 'react';
+import { useTransition, useState } from 'react';
 
 import { challengeOptions, challenges } from '@/db/schema';
+import { upsertChallengeProgress } from '@/actions/challenge-progress';
 
 import { Header } from './header';
 import { QuestionBubble } from './question-bubble';
 import { Challenge } from './challenge';
 import { Footer } from './footer';
+import { toast } from 'sonner';
+import { reduceHearts } from '@/actions/user-progress';
 
 type QuizProps = {
 	initialPercentage: number;
@@ -27,6 +30,8 @@ export const Quiz = ({
 	initialPercentage,
 	userSubscription,
 }: QuizProps) => {
+	const [pending, startTransition] = useTransition();
+
 	const [hearts, setHearts] = useState(initialHearts);
 	const [percentage, setPercentage] = useState(initialPercentage);
 	const [challenges, setChallenges] = useState(initialLessonChallenges);
@@ -73,12 +78,42 @@ export const Quiz = ({
 		if (!correctOption) return;
 
 		if (selectedOption === correctOption.id) {
-			// setStatus('correct');
-			// setPercentage((current) => current + 10);
-			// return;
-			alert('Correct');
+			startTransition(() => {
+				upsertChallengeProgress(challenge.id)
+					.then((response) => {
+						if (response?.error === 'hearts') {
+							console.error('Missing hearts');
+							return;
+						}
+
+						setStatus('correct');
+						setPercentage((prev) => prev + 100 / challenges.length);
+
+						if (initialPercentage === percentage) {
+							setHearts((prev) => Math.min(prev + 1, 5));
+						}
+					})
+					.catch(() => toast.error('Something went wrong. Please try again.'));
+			});
 		} else {
-			alert('Wrong');
+			startTransition(() => {
+				reduceHearts(challenge.id)
+					.then((response) => {
+						if (response?.error === 'hearts') {
+							console.error('Missing hearts');
+							return;
+						}
+
+						setStatus('wrong');
+
+						if (!response?.error) {
+							setHearts((prev) => Math.max(prev - 1, 0));
+						}
+
+						setStatus('wrong');
+					})
+					.catch(() => toast.error('Something went wrong. Please try again.'));
+			});
 		}
 	};
 
@@ -104,7 +139,7 @@ export const Quiz = ({
 								onSelect={onSelect}
 								status={status}
 								selectedOption={selectedOption}
-								disabled={false}
+								disabled={pending}
 								type={challenge.type}
 							/>
 						</div>
@@ -112,7 +147,7 @@ export const Quiz = ({
 				</div>
 			</div>
 			<Footer
-				disabled={!selectedOption}
+				disabled={pending || !selectedOption}
 				status={status}
 				onCheck={onContinue}
 			/>
