@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { challengeOptions, challenges } from '@/db/schema';
 import { upsertChallengeProgress } from '@/actions/challenge-progress';
 import { reduceHearts } from '@/actions/user-progress';
+import { useHeartsModal } from '@/store/use-hearts-modal';
 
 import { Header } from './header';
 import { QuestionBubble } from './question-bubble';
@@ -35,6 +36,8 @@ export const Quiz = ({
 	initialPercentage,
 	userSubscription,
 }: QuizProps) => {
+	const { open: openHeartsModal } = useHeartsModal();
+
 	const { width, height } = useWindowSize();
 
 	const router = useRouter();
@@ -96,7 +99,7 @@ export const Quiz = ({
 				upsertChallengeProgress(challenge.id)
 					.then((response) => {
 						if (response?.error === 'hearts') {
-							console.error('Missing hearts');
+							openHeartsModal();
 							return;
 						}
 
@@ -115,7 +118,7 @@ export const Quiz = ({
 				reduceHearts(challenge.id)
 					.then((response) => {
 						if (response?.error === 'hearts') {
-							console.error('Missing hearts');
+							openHeartsModal();
 							return;
 						}
 
