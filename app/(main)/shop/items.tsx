@@ -83,10 +83,10 @@ export const Items = ({ hasActiveSubscription, hearts, points }: ItemsProps) => 
 					<p className='text-neutral-700 text-base lg:text-xl font-bold'>Unlimited hearts</p>
 				</div>
 				<Button
-					disabled={pending || hasActiveSubscription}
+					disabled={pending}
 					onClick={onUpgrade}
 				>
-					{hasActiveSubscription ? 'active' : 'upgrade'}
+					{hasActiveSubscription ? 'settings' : 'upgrade'}
 				</Button>
 			</div>
 		</ul>
