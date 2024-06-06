@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
-import { challengeOptions, challenges } from '@/db/schema';
+import { challengeOptions, challenges, userSubscription } from '@/db/schema';
 import { upsertChallengeProgress } from '@/actions/challenge-progress';
 import { reduceHearts } from '@/actions/user-progress';
 import { useHeartsModal } from '@/store/use-hearts-modal';
@@ -27,7 +27,7 @@ type QuizProps = {
 		challengeOptions: (typeof challengeOptions.$inferSelect)[];
 	})[];
 	initialLessonId: number;
-	userSubscription: any;
+	userSubscription: (typeof userSubscription.$inferSelect & { isActive: boolean }) | null;
 };
 
 export const Quiz = ({
