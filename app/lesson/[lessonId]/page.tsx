@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 
-import { getLesson, getUserProgress } from '@/db/queries';
+import { getLesson, getUserProgress, getUserSubscription } from '@/db/queries';
 
 import { Quiz } from '../quiz';
 
@@ -13,8 +13,13 @@ type LessonIdPageProps = {
 const LessonIdPage = async ({ params }: LessonIdPageProps) => {
 	const lessonPromise = getLesson(params.lessonId);
 	const userProgressPromise = getUserProgress();
+	const userSubscriptionPromise = getUserSubscription();
 
-	const [lesson, userProgress] = await Promise.all([lessonPromise, userProgressPromise]);
+	const [lesson, userProgress, userSubscription] = await Promise.all([
+		lessonPromise,
+		userProgressPromise,
+		userSubscriptionPromise,
+	]);
 
 	if (!lesson || !userProgress) {
 		redirect('/learn');
@@ -29,7 +34,7 @@ const LessonIdPage = async ({ params }: LessonIdPageProps) => {
 			initialLessonChallenges={lesson.challenges}
 			initialHearts={userProgress.hearts}
 			initialPercentage={initialPercentage}
-			userSubscription={null}
+			userSubscription={userSubscription}
 		/>
 	);
 };
