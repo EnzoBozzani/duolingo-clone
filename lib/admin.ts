@@ -1,5 +1,11 @@
 import { auth } from '@clerk/nextjs/server';
 
-export const isAdmin = async () => {
-	const { userId } = await auth();
+const allowedIds = ['user_2gShS3kK7k9psquMoESspYKHHkS'];
+
+export const isAdmin = () => {
+	const { userId } = auth();
+
+	if (!userId) return false;
+
+	return allowedIds.includes(userId);
 };
